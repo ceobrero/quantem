@@ -7,8 +7,15 @@ def sliding_fft(
     image,
     window_size,
     step_size,
+    crop_size=None,
+    #cropping fft... implement 128...
 ):
-    
+    # default crop size
+    if crop_size is None:
+        crop_size = window_size
+
+
+
     # define window origin coords
     rx_max = image.shape[0] - window_size[0]
     ry_max = image.shape[1] - window_size[1]
@@ -23,14 +30,16 @@ def sliding_fft(
     stack4d = np.zeros((
         rx.size,
         ry.size,
-        window_size[0],
-        window_size[1],
+        crop_size[0],
+        crop_size[1],
     ))
+
 
     # calculate sliding fft
     #fft shift for visualization
     for x_ind in range(rx.size):
         for y_ind in range(ry.size):
+            #crop before fftshift or after fftshift
             stack4d[x_ind,y_ind] = np.fft.fftshift(
                 np.abs(
                     np.fft.fft2(
