@@ -16,7 +16,8 @@ crop_shape: size of cropped fft result
 def sliding_fft(
     image,
     window_shape,
-    step_pixels,
+    step_pixels=None,
+    num_windows=None,
     crop_shape = None,
     plot_windows = False,
 ):
@@ -25,21 +26,31 @@ def sliding_fft(
     if crop_shape is None:
         crop_shape = window_shape
 
-
-
     # defining window origin coords
 
     # rx_max and ry_max - defines max pixel value for a possible partition of the image
-    rx_max = (image.shape[0] - window_shape[0]) + window_shape[0] # to include x windows at the boundary
-    ry_max = (image.shape[1] - window_shape[1]) + window_shape[1] # to include y windows at the boundary
+    rx_max = (image.shape[0] - window_shape[0]) # to include x windows at the boundary
+    ry_max = (image.shape[1] - window_shape[1]) # to include y windows at the boundary
 
     # rx and ry - creates an array of x/y values from 0 to rx/ry_max with a set step size
-    rx = np.arange(0,rx_max,step_pixels[0])
-    ry = np.arange(0,ry_max,step_pixels[1])
+    if step_pixels is not None and num_windows is None:
+        rx = np.arange(0,rx_max+1,step_pixels[0])
+        ry = np.arange(0,ry_max+1,step_pixels[1])
+
+    elif step_pixels is None and num_windows is not None:
+        rx = np.round(np.linspace(0,rx_max,num_windows[0])).astype('int')
+        ry = np.round(np.linspace(0,ry_max,num_windows[1])).astype('int')
+
+    elif step_pixels is None and num_windows is None:
+        raise Exception('must specify step_pixels or num_windows')
+        
+    elif step_pixels is not None and num_windows is not None:
+        raise Exception('cannot specify both step_pixels and num_windows')    
     
     # rx0 and ry0 - the "(0,0)" of each partition, indexing = ij means starting from the top left (matrix) instead of bottom left (cartesian)
         # mimics microscopy bc scanning starts from the top left
-    rx0,ry0 = np.meshgrid(rx,ry,indexing = 'ij')
+
+
 
     # rx1 and ry1 - the following point from rx0 and ry0    
     rx1 = rx0 + window_shape[0]
@@ -71,6 +82,7 @@ def sliding_fft(
     # fft shift for visualization (switches around the resulting fft to look more like a tem diffraction pattern)
     # f1(f2(f3(image)))
     # load indices of partition > take fft > imaginary to real by taking the absolute value > perform fftshift
+    
     for x_ind in range(rx.size):
         for y_ind in range(ry.size):
             stack4d[x_ind,y_ind] = np.fft.fftshift(
