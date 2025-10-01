@@ -49,7 +49,7 @@ def sliding_fft(
     
     # rx0 and ry0 - the "(0,0)" of each partition, indexing = ij means starting from the top left (matrix) instead of bottom left (cartesian)
         # mimics microscopy bc scanning starts from the top left
-
+    rx0,ry0 = np.meshgrid(rx,ry,indexing = 'ij')
 
 
     # rx1 and ry1 - the following point from rx0 and ry0    
