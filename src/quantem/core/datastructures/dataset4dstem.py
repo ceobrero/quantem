@@ -142,6 +142,66 @@ class Dataset4dstem(Dataset4d):
         """
         return self._virtual_images
 
+
+    def get_dp(self, attach: bool = True) -> Dataset2d:
+        """
+        Get mean, max, and median diffraction pattern.
+
+        Parameters
+        ----------
+        attach : bool, optional
+            If True, attaches mean, max, and median diffraction pattern to self, by default True
+
+        Returns
+        -------
+        Dataset
+            3 datasets with the mean, max, and median diffraction pattern
+        """
+
+        #mean
+        dp_mean = self.mean((0, 1))
+
+        dp_mean_dataset = Dataset2d.from_array(
+            array=dp_mean,
+            name=self.name + "_dp_mean",
+            origin=self.origin[-2:],
+            sampling=self.sampling[-2:],
+            units=self.units[-2:],
+            signal_units=self.signal_units,
+        )
+
+        #max
+        dp_max = self.max((0, 1))
+
+        dp_max_dataset = Dataset2d.from_array(
+            array=dp_max,
+            name=self.name + "_dp_max",
+            origin=self.origin[-2:],
+            sampling=self.sampling[-2:],
+            units=self.units[-2:],
+            signal_units=self.signal_units,
+        )
+
+        #median
+        dp_median = np.median(self.array, axis=(0, 1))
+
+        dp_median_dataset = Dataset2d.from_array(
+            array=dp_median,
+            name=self.name + "_dp_median",
+            origin=self.origin[-2:],
+            sampling=self.sampling[-2:],
+            units=self.units[-2:],
+            signal_units=self.signal_units,
+        )
+    
+        if attach is True:
+            self._dp_mean = dp_mean_dataset
+            self._dp_max = dp_max_dataset
+            self._dp_median = dp_median_dataset
+    
+        return dp_mean_dataset, dp_max_dataset, dp_median_dataset
+
+
     @property
     def dp_mean(self) -> Dataset2d:
         """
@@ -158,35 +218,6 @@ class Dataset4dstem(Dataset4d):
             print("Calculating dp_mean, attach with Dataset4dstem.get_dp_mean()")
             return self.get_dp_mean(attach=False)
 
-    def get_dp_mean(self, attach: bool = True) -> Dataset2d:
-        """
-        Get mean diffraction pattern.
-
-        Parameters
-        ----------
-        attach : bool, optional
-            If True, attaches mean diffraction pattern to self, by default True
-
-        Returns
-        -------
-        Dataset
-            A new Dataset with the mean diffraction pattern
-        """
-        dp_mean = self.mean((0, 1))
-
-        dp_mean_dataset = Dataset2d.from_array(
-            array=dp_mean,
-            name=self.name + "_dp_mean",
-            origin=self.origin[-2:],
-            sampling=self.sampling[-2:],
-            units=self.units[-2:],
-            signal_units=self.signal_units,
-        )
-
-        if attach is True:
-            self._dp_mean = dp_mean_dataset
-
-        return dp_mean_dataset
 
     @property
     def dp_max(self) -> Dataset2d:
@@ -204,35 +235,6 @@ class Dataset4dstem(Dataset4d):
             print("Calculating dp_max, attach with Dataset4dstem.get_dp_max()")
             return self.get_dp_max(attach=False)
 
-    def get_dp_max(self, attach: bool = True) -> Dataset2d:
-        """
-        Get max diffraction pattern.
-
-        Parameters
-        ----------
-        attach : bool, optional
-            If True, attaches max diffraction pattern to dataset, by default True
-
-        Returns
-        -------
-        Dataset
-            A new Dataset with the max diffraction pattern
-        """
-        dp_max = self.max((0, 1))
-
-        dp_max_dataset = Dataset2d.from_array(
-            array=dp_max,
-            name=self.name + "_dp_max",
-            origin=self.origin[-2:],
-            sampling=self.sampling[-2:],
-            units=self.units[-2:],
-            signal_units=self.signal_units,
-        )
-
-        if attach is True:
-            self._dp_max = dp_max_dataset
-
-        return dp_max_dataset
 
     @property
     def dp_median(self) -> Dataset2d:
@@ -250,35 +252,6 @@ class Dataset4dstem(Dataset4d):
             print("Calculating dp_median, attach with Dataset4dstem.get_dp_median()")
             return self.get_dp_median(attach=False)
 
-    def get_dp_median(self, attach: bool = True) -> Dataset2d:
-        """
-        Get median diffraction pattern.
-
-        Parameters
-        ----------
-        attach : bool, optional
-            If True, attaches median diffraction pattern to dataset, by default True
-
-        Returns
-        -------
-        Dataset
-            A new Dataset with the median diffraction pattern
-        """
-        dp_median = np.median(self.array, axis=(0, 1))
-
-        dp_median_dataset = Dataset2d.from_array(
-            array=dp_median,
-            name=self.name + "_dp_median",
-            origin=self.origin[-2:],
-            sampling=self.sampling[-2:],
-            units=self.units[-2:],
-            signal_units=self.signal_units,
-        )
-
-        if attach is True:
-            self._dp_median = dp_median_dataset
-
-        return dp_median_dataset
 
     def get_virtual_image(
         self,
