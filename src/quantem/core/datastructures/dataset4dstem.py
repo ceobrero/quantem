@@ -320,6 +320,31 @@ class Dataset4dstem(Dataset4d):
 
         return virtual_image_dataset
 
+    # def caitlyn_set(
+    #     self,
+    #     num_turns,
+    #     num_points,
+    #     start_radius,
+    #     end_radius,
+    # ):
+    #     print('woagh')
+
+    #     import matplotlib.pyplot as plt
+    #     import numpy as np
+
+    #     theta = np.linspace(0, num_turns * 2 * np.pi, num_points)
+    #     r = np.linspace(start_radius, end_radius, num_points)
+
+    #     x = r * np.cos(theta)
+    #     y = r * np.sin(theta)
+    #     plt.plot(x, y)
+    #     plt.show()
+        
+        
+
+
+            
+
     # def show(
     #     self,
     #     index : tuple[int,int] = (0,0),
