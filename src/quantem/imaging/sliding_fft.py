@@ -140,6 +140,7 @@ def sliding_fft(
     if plot_windows:
         fig,ax = show_2d(
             image,
+            # figsize=(image.shape[0],image.shape[1]),
             returnfig = True,
         )
     
