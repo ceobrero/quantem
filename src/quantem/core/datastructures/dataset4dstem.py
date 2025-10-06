@@ -143,64 +143,93 @@ class Dataset4dstem(Dataset4d):
         return self._virtual_images
 
 
-    def get_dp(self, attach: bool = True) -> Dataset2d:
+    def get_dp(self, mode, attach:bool = True) -> Dataset2d:
+    
         """
-        Get mean, max, and median diffraction pattern.
+        Get mean, max, and/or median (+ more) diffraction pattern(s).
 
         Parameters
         ----------
+        mode : list[str]
+            List of diffraction pattern modes
+            
+        
         attach : bool, optional
             If True, attaches mean, max, and median diffraction pattern to self, by default True
 
         Returns
         -------
         Dataset
-            3 datasets with the mean, max, and median diffraction pattern
+            datasets with specified diffraction patterns
+            
         """
+        
+        #default to mean? 
 
-        #mean
-        dp_mean = self.mean((0, 1))
+        dp_mode = ()
+        
+        if 'mean' in mode:
+            dp_mean = self.mean((0, 1))
 
-        dp_mean_dataset = Dataset2d.from_array(
-            array=dp_mean,
-            name=self.name + "_dp_mean",
-            origin=self.origin[-2:],
-            sampling=self.sampling[-2:],
-            units=self.units[-2:],
-            signal_units=self.signal_units,
-        )
+            dp_mean_dataset = Dataset2d.from_array(
+                array=dp_mean,
+                name=self.name + "_dp_mean",
+                origin=self.origin[-2:],
+                sampling=self.sampling[-2:],
+                units=self.units[-2:],
+                signal_units=self.signal_units,
+            )
 
-        #max
-        dp_max = self.max((0, 1))
+            if attach is True:
+                self._dp_mean = dp_mean_dataset
 
-        dp_max_dataset = Dataset2d.from_array(
-            array=dp_max,
-            name=self.name + "_dp_max",
-            origin=self.origin[-2:],
-            sampling=self.sampling[-2:],
-            units=self.units[-2:],
-            signal_units=self.signal_units,
-        )
+            dp_mode = (*dp_mode, dp_mean_dataset)
 
-        #median
-        dp_median = np.median(self.array, axis=(0, 1))
+        else:
+            pass
 
-        dp_median_dataset = Dataset2d.from_array(
-            array=dp_median,
-            name=self.name + "_dp_median",
-            origin=self.origin[-2:],
-            sampling=self.sampling[-2:],
-            units=self.units[-2:],
-            signal_units=self.signal_units,
-        )
+        if 'max' in mode:
+            dp_max = self.max((0, 1))
+
+            dp_max_dataset = Dataset2d.from_array(
+                array=dp_max,
+                name=self.name + "_dp_max",
+                origin=self.origin[-2:],
+                sampling=self.sampling[-2:],
+                units=self.units[-2:],
+                signal_units=self.signal_units,
+            )
+
+            if attach is True:
+                self._dp_max = dp_max_dataset
+
+            dp_mode = (*dp_mode, dp_max_dataset)
+
+        else:
+            pass
+
+        if 'median' in mode:
+            dp_median = np.median(self.array, axis=(0, 1))
+
+            dp_median_dataset = Dataset2d.from_array(
+                array=dp_median,
+                name=self.name + "_dp_median",
+                origin=self.origin[-2:],
+                sampling=self.sampling[-2:],
+                units=self.units[-2:],
+                signal_units=self.signal_units,
+            )
+        
+            if attach is True:
+                self._dp_median = dp_median_dataset
+
+            dp_mode = (*dp_mode, dp_median_dataset)
+        
+        else:
+            pass
+
+        return dp_mode
     
-        if attach is True:
-            self._dp_mean = dp_mean_dataset
-            self._dp_max = dp_max_dataset
-            self._dp_median = dp_median_dataset
-    
-        return dp_mean_dataset, dp_max_dataset, dp_median_dataset
-
 
     @property
     def dp_mean(self) -> Dataset2d:
@@ -215,8 +244,8 @@ class Dataset4dstem(Dataset4d):
         if hasattr(self, "_dp_mean"):
             return self._dp_mean
         else:
-            print("Calculating dp_mean, attach with Dataset4dstem.get_dp_mean()")
-            return self.get_dp_mean(attach=False)
+            print("Calculating dp_mean, attach with Dataset4dstem.get_dp_mode(mode = 'mean')")
+            return self.get_dp(mode = 'mean', attach=False)
 
 
     @property
@@ -232,8 +261,8 @@ class Dataset4dstem(Dataset4d):
         if hasattr(self, "_dp_max"):
             return self._dp_max
         else:
-            print("Calculating dp_max, attach with Dataset4dstem.get_dp_max()")
-            return self.get_dp_max(attach=False)
+            print("Calculating dp_max, attach with Dataset4dstem.get_dp_mode(mode = 'max')")
+            return self.get_dp(mode = 'max', attach=False)
 
 
     @property
@@ -249,9 +278,9 @@ class Dataset4dstem(Dataset4d):
         if hasattr(self, "_dp_median"):
             return self._dp_median
         else:
-            print("Calculating dp_median, attach with Dataset4dstem.get_dp_median()")
-            return self.get_dp_median(attach=False)
-
+            print("Calculating dp_median, attach with Dataset4dstem.get_dp_mode(mode = 'median')")
+            return self.get_dp(mode = 'median', attach=False)
+        
 
     def get_virtual_image(
         self,
